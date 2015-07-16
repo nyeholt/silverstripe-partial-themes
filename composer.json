@@ -1,0 +1,22 @@
+{
+	"name": "silverstripe-australia/silverstripe-partial-themes",
+	"description": "A module that allows developers to defined just one a few template over-rides for the base theme templates, applied to just sub-trees of a site",
+	"type": "silverstripe-module",
+	"keywords": [
+		"silverstripe",
+		"theme",
+		"partial theme"
+	],
+	"homepage": "https://github.com/nyeholt/silverstripe-partial-themes",
+	"license": "BSD-3-Clause",
+	"authors": [{
+		"name": "Marcus Nyeholt",
+		"email": "marcus@silverstripe.com.au"
+	}],
+	"extra": {
+		"installer-name": "partial-themes",
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
