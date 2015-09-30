@@ -186,6 +186,13 @@ class PartialThemesExtension extends DataExtension {
 		}
 
 		$other = SS_TemplateLoader::instance()->findTemplates($templates, $inTheme);
+		
+		// check that the theme's path is actually in the returned paths
+		foreach ($other as $key => $path) {
+			if (strpos($path, 'themes/' . $inTheme) === false) {
+				unset($other[$key]);
+			}
+		}
 
 		if (count($other)) {
 			return $other;
