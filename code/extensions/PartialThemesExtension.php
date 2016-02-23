@@ -2,27 +2,27 @@
 
 /**
  * An extension that helps out with the application of a "Partial Theme"
- * 
+ *
  * A Partial Theme is one in which only certain templates are defined, that
- * are considered to 'override' those defined in the main theme currently 
+ * are considered to 'override' those defined in the main theme currently
  * applied to the site. This allows for a subsection to define several templates
  * differently from the 'main' theme but without needing to copy large chunks of
- * code (eg the master Page template) 
+ * code (eg the master Page template)
  *
  * @author <marcus@silverstripe.com.au>
  * @license BSD License http://www.silverstripe.org/bsd-license
  */
 class PartialThemesExtension extends DataExtension {
-	
+
 	private static $db = array(
 		'PartialTheme'		=> 'Varchar',
 		'AppliedTheme'			=> 'Varchar',
 	);
-	
+
 	public function updateSettingsFields(FieldList $fields) {
-		
+
 		$systemThemes = SiteConfig::current_site_config()->getAvailableThemes();
-		
+
 		$partials = $themes = array('' => '','none' => '(none)');
 		foreach ($systemThemes as $key => $themeName) {
 			if (file_exists(Director::baseFolder().'/themes/' . $themeName.'/templates/Page.ss')) {
@@ -40,10 +40,10 @@ class PartialThemesExtension extends DataExtension {
 		} else {
 			$themeDropdownField->setRightTitle('Using default site theme');
 		}
-		
+
 		$themeDropdownField = new DropdownField("PartialTheme", 'Partial Theme', $partials);
 		$fields->addFieldToTab('Root.Theme', $themeDropdownField);
-		
+
 		$current = $this->appliedPartialTheme();
 		if ($current) {
 			$themeDropdownField->setRightTitle('Current effective partial theme: ' . $current);
@@ -51,7 +51,7 @@ class PartialThemesExtension extends DataExtension {
 			$themeDropdownField->setRightTitle('Please only use a specific applied theme OR a partial theme, not both!');
 		}
 	}
-	
+
 	public function appliedTheme() {
 		if ($this->owner->AppliedTheme) {
 			return $this->owner->AppliedTheme;
@@ -86,7 +86,7 @@ class PartialThemesExtension extends DataExtension {
 		if ($current->hasMethod('appliedPartialTheme')) {
 			$partial = $current->appliedPartialTheme();
 		}
-		
+
 		// check for alternative 'sub' templates
 		if (!$partial) {
 			return $viewer;
@@ -107,12 +107,12 @@ class PartialThemesExtension extends DataExtension {
 
 		return $viewer;
 	}
-	
+
 	public function partialRenderWith($template, $arguments = null) {
 		if(!is_object($template)) {
-			$templates = is_array($template) ? $template : array($template); 
+			$templates = is_array($template) ? $template : array($template);
 			// we silence errors here because we know that the template might not exist in the applied
-			// theme but only in the overridden theme. 
+			// theme but only in the overridden theme.
 			$viewer = @new SSViewer($templates);
 		}
 
@@ -131,7 +131,7 @@ class PartialThemesExtension extends DataExtension {
 		} else {
 			$data = $this->owner;
 		}
-		
+
 		foreach ($extraParams as $key => $val) {
 			$data->$key = $val;
 		}
@@ -141,7 +141,7 @@ class PartialThemesExtension extends DataExtension {
 		$v = new SSViewer("dummy.ss");
 		$v->setTemplateFile("main", null);
 		$v = $this->overridePartialTemplates($v, array($template));
-		
+
 		// check that there was an override
 		$templates = $v->templates();
 		if (!strlen($templates['main'])) {
@@ -150,12 +150,12 @@ class PartialThemesExtension extends DataExtension {
 
 		return $v->process($data, $arguments);
 	}
-	
-	
+
+
 	/**
 	 * Find an alternative template for the current page in a separate theme
-	 * 
-	 * @param type $inTheme 
+	 *
+	 * @param type $inTheme
 	 */
 	protected function findAlternate($inTheme, $templates = array(), $action = null) {
 
@@ -186,7 +186,7 @@ class PartialThemesExtension extends DataExtension {
 		}
 
 		$other = SS_TemplateLoader::instance()->findTemplates($templates, $inTheme);
-		
+
 		// check that the theme's path is actually in the returned paths
 		foreach ($other as $key => $path) {
 			if (strpos($path, 'themes/' . $inTheme) === false) {
@@ -198,39 +198,39 @@ class PartialThemesExtension extends DataExtension {
 			return $other;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @var ThemeHelper
 	 */
 	protected $themeHelpers;
-	
+
 	protected function getThemeHelper($themeName) {
 		if (!isset($this->themeHelpers[$themeName])) {
 			$theme = false;
-                        
+
                         $themeName = preg_replace('/-/', "", $themeName);
 			// see if there's a theme specific controller
-			$helperClass = ucfirst($themeName . 'Helper');                        
+			$helperClass = ucfirst($themeName . 'Helper');
 			if (class_exists($helperClass)) {
 				$theme = $helperClass::create();
 			}
 			$this->themeHelpers[$themeName] = $theme;
 		}
-		
+
 		return $this->themeHelpers[$themeName];
 	}
 
 	public function onBeforeInit() {
 		$applied = $partial = '';
-		
+
 		if ($this->owner->hasMethod('appliedTheme')) {
 			$applied = $this->owner->appliedTheme();
 		}
 		if ($this->owner->hasMethod('appliedPartialTheme')) {
 			$partial = $this->owner->appliedPartialTheme();
 		}
-		
+
 		if (strlen($applied)) {
 			SSViewer::set_theme($applied);
 			if ($helper = $this->getThemeHelper($applied)) {
@@ -243,7 +243,7 @@ class PartialThemesExtension extends DataExtension {
 			}
 		}
 	}
-	
+
 	public function onAfterInit() {
 		$applied = $partial = '';
 		if ($this->owner->hasMethod('appliedTheme')) {
@@ -252,7 +252,7 @@ class PartialThemesExtension extends DataExtension {
 		if ($this->owner->hasMethod('appliedPartialTheme')) {
 			$partial = $this->owner->appliedPartialTheme();
 		}
-		
+
 		if (strlen($applied)) {
 			if ($helper = $this->getThemeHelper($applied)) {
 				$helper->afterInit();

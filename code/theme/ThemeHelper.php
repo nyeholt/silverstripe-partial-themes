@@ -8,10 +8,10 @@
  */
 class ThemeHelper extends Object {
 	public function beforeInit() {
-		
+
 	}
-	
+
 	public function afterInit() {
-		
+
 	}
 }
